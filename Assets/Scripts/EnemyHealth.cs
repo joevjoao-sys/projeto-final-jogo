@@ -6,16 +6,31 @@ public class EnemyHealth : MonoBehaviour
     public float maxHealth = 100f;
     private float currentHealth;
 
+    [Header("Referência da UI")]
+    // Arraste o componente EnemyHealthBar (que está no Canvas) para cá no Inspector
+    public EnemyHealthBar healthBar; 
+
     void Start()
     {
-        // O inimigo nasce com a vida cheia
         currentHealth = maxHealth;
+
+        // Inicializa a barra de vida com 100%
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthBar(currentHealth, maxHealth);
+        }
     }
 
-    // Essa é a função que a nossa arma vai chamar quando o Raycast acertar
     public void TakeDamage(float amount)
     {
         currentHealth -= amount;
+        
+        // Atualiza a barra de vida visualmente
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthBar(currentHealth, maxHealth);
+        }
+
         Debug.Log(gameObject.name + " tomou " + amount + " de dano! Vida restante: " + currentHealth);
 
         if (currentHealth <= 0f)
@@ -26,10 +41,7 @@ public class EnemyHealth : MonoBehaviour
 
     void Die()
     {
-        // Aqui no futuro podemos colocar um efeito de explosão de sangue (partículas) ou som
         Debug.Log(gameObject.name + " foi de arrasta pra cima!");
-       
-        // Destrói o objeto da cena
         Destroy(gameObject);
     }
 }
