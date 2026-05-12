@@ -132,7 +132,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 1
-  m_BaseOffset: 0.5
+  m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &-9021098168119043876
@@ -147,6 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e93b9e892237214f8390af085c5b420, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 2.5
-  damage: 50
-  attackCooldown: 1.5
+  raioDeVisao: 30
+  distanciaDeAtaque: 2.5
+  dano: 15
+  tempoEntreAtaques: 1.5
