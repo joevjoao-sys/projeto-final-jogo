@@ -24,6 +24,7 @@ public class EnemyHealth : MonoBehaviour
 
     void Update()
     {
+        // Faz a barra de vida estar sempre virada para o jogador
         if (canvasDaVida != null)
         {
             canvasDaVida.LookAt(canvasDaVida.position + Camera.main.transform.rotation * Vector3.forward,
@@ -39,9 +40,9 @@ public class EnemyHealth : MonoBehaviour
         if (currentHealth <= 0f) Die();
     }
 
- void Die()
+    void Die()
     {
-        // Sua Lógica de Drop (Intacta!)
+        // Lógica de Drop
         float sorteio = Random.Range(0f, 100f);
         if (sorteio <= chanceDeDrop && rumPrefab != null)
         {
@@ -49,13 +50,16 @@ public class EnemyHealth : MonoBehaviour
             Instantiate(rumPrefab, transform.position + Vector3.up, Quaternion.identity);
         }
 
-        // NOVO: Avisar o Gerenciador de Hordas que este monstro morreu!
+        // ==========================================
+        // A NOVIDADE: Lógica da Horda
+        // ==========================================
         WaveManager waveManager = FindObjectOfType<WaveManager>();
         if (waveManager != null)
         {
-            waveManager.EnemyDefeated();
+            waveManager.MonstroMorreu();
         }
 
         Debug.Log(gameObject.name + " foi destruído!");
         Destroy(gameObject);
     }
+}

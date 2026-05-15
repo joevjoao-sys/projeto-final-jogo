@@ -373,7 +373,7 @@ MonoBehaviour:
   barraDeVida: {fileID: 2974165967762460747}
   canvasDaVida: {fileID: 2974165968797461377}
   rumPrefab: {fileID: 5101566843536154508, guid: defa66582da745142895e2e640016b66, type: 3}
-  chanceDeDrop: 100
+  chanceDeDrop: 15
 --- !u!195 &1684146207454244529
 NavMeshAgent:
   m_ObjectHideFlags: 0
