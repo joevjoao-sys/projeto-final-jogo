@@ -39,9 +39,9 @@ public class EnemyHealth : MonoBehaviour
         if (currentHealth <= 0f) Die();
     }
 
-    void Die()
+ void Die()
     {
-        // Lógica de Drop
+        // Sua Lógica de Drop (Intacta!)
         float sorteio = Random.Range(0f, 100f);
         if (sorteio <= chanceDeDrop && rumPrefab != null)
         {
@@ -49,7 +49,13 @@ public class EnemyHealth : MonoBehaviour
             Instantiate(rumPrefab, transform.position + Vector3.up, Quaternion.identity);
         }
 
+        // NOVO: Avisar o Gerenciador de Hordas que este monstro morreu!
+        WaveManager waveManager = FindObjectOfType<WaveManager>();
+        if (waveManager != null)
+        {
+            waveManager.EnemyDefeated();
+        }
+
         Debug.Log(gameObject.name + " foi destruído!");
         Destroy(gameObject);
     }
-}
