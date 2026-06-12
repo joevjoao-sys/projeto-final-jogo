@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UI; // Adicionado para controlar a interface (UI)
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -8,23 +8,29 @@ public class EnemyHealth : MonoBehaviour
     private float currentHealth;
 
     [Header("Interface")]
-    public Image barraDeVida;
-    public Transform canvasDaVida;
+    public Image barraDeVida; // Onde você vai arrastar a imagem "Filled"
+    public Transform canvasDaVida; // Onde você vai arrastar o objeto principal do Canvas
 
     [Header("Configurações de Drop")]
-    public GameObject rumPrefab; // Arraste o prefab da garrafa de Rum aqui
-    [Range(0, 100)]
-    public float chanceDeDrop = 30f; // 30% de chance de cair Rum
+    public GameObject rumPrefab; // Arraste o prefab do Rum aqui
+    public GameObject municaoPrefab; // Arraste o prefab da Caixa de Munição aqui
+    [Range(0f, 100f)]
+    public float chanceDeDrop = 40f; // Chance geral de dropar algo (40%)
 
     void Start()
     {
-        currentHealth = maxHealth;
-        if (barraDeVida != null) barraDeVida.fillAmount = 1f;
+        currentHealth = maxHealth; // Nasce com a vida cheia
+       
+        // Garante que a barra comece cheia visualmente
+        if (barraDeVida != null)
+        {
+            barraDeVida.fillAmount = 1f;
+        }
     }
 
     void Update()
     {
-        // Faz a barra de vida estar sempre virada para o jogador
+        // Faz o Canvas sempre olhar para a câmera do jogador (essencial para FPS)
         if (canvasDaVida != null)
         {
             canvasDaVida.LookAt(canvasDaVida.position + Camera.main.transform.rotation * Vector3.forward,
@@ -32,34 +38,46 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
+    // A arma chama essa função quando o Raycast bate nele
     public void TakeDamage(float amount)
     {
         currentHealth -= amount;
-        if (barraDeVida != null) barraDeVida.fillAmount = currentHealth / maxHealth;
+        Debug.Log(gameObject.name + " tomou tiro! Vida: " + currentHealth);
 
-        if (currentHealth <= 0f) Die();
+        // A Mágica acontece aqui: a barra diminui proporcionalmente
+        if (barraDeVida != null)
+        {
+            barraDeVida.fillAmount = currentHealth / maxHealth;
+        }
+
+        if (currentHealth <= 0f)
+        {
+            Die();
+        }
     }
 
     void Die()
     {
-        // Lógica de Drop
+        // Sistema de sorteio para os drops
         float sorteio = Random.Range(0f, 100f);
-        if (sorteio <= chanceDeDrop && rumPrefab != null)
+       
+        if (sorteio <= chanceDeDrop)
         {
-            // Cria o Rum na posição do inimigo
-            Instantiate(rumPrefab, transform.position + Vector3.up, Quaternion.identity);
-        }
-
-        // ==========================================
-        // A NOVIDADE: Lógica da Horda
-        // ==========================================
-        WaveManager waveManager = FindObjectOfType<WaveManager>();
-        if (waveManager != null)
-        {
-            waveManager.MonstroMorreu();
+            // 50% de chance de ser Rum, 50% de ser Munição
+            if (Random.value > 0.5f && rumPrefab != null)
+            {
+                Instantiate(rumPrefab, transform.position + Vector3.up, Quaternion.identity);
+                Debug.Log(gameObject.name + " dropou um Rum!");
+            }
+            else if (municaoPrefab != null)
+            {
+                Instantiate(municaoPrefab, transform.position + Vector3.up, Quaternion.identity);
+                Debug.Log(gameObject.name + " dropou Munição!");
+            }
         }
 
         Debug.Log(gameObject.name + " foi destruído!");
+        // Destrói o inimigo da cena
         Destroy(gameObject);
     }
 }
