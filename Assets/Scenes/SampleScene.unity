@@ -832,6 +832,8 @@ GameObject:
   - component: {fileID: 618083929}
   - component: {fileID: 618083934}
   - component: {fileID: 618083935}
+  - component: {fileID: 618083936}
+  - component: {fileID: 618083937}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -937,6 +939,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 963194228}
+  - {fileID: 877980550}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -973,6 +976,39 @@ MonoBehaviour:
   - {fileID: 1978804871}
   - {fileID: 763331454}
   - {fileID: 2114934846}
+--- !u!114 &618083936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 618083928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14c913226aa95b842b844b13a81869df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alcanceAtaque: 2.5
+  danoEspada: 25
+  pontoDeAtaque: {fileID: 877980550}
+  layerInimigo:
+    serializedVersion: 2
+    m_Bits: 8
+  forcaKnockback: 15
+  animator: {fileID: 0}
+  tempoEntreAtaques: 0.5
+--- !u!114 &618083937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 618083928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7782e98afedca14bb46e912b316b76d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &698811558
 GameObject:
   m_ObjectHideFlags: 0
@@ -1592,6 +1628,37 @@ Transform:
   m_Father: {fileID: 1330317291}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: -51.695, y: -179.181, z: 179.593}
+--- !u!1 &877980549
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 877980550}
+  m_Layer: 0
+  m_Name: PontoDeAtaque
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &877980550
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 877980549}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.1, y: 0, z: 1.31}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 618083933}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1895,7 +1962,7 @@ GameObject:
   - component: {fileID: 1110896945}
   m_Layer: 0
   m_Name: Mar
-  m_TagString: Untagged
+  m_TagString: Agua
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1922,10 +1989,10 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1110896944}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 4
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &1110896947
@@ -3038,6 +3105,7 @@ MonoBehaviour:
   tempoEntreTiros: 0.5
   capacidadeDoPente: 6
   balasNaReserva: 24
+  tempoDeRecarga: 2
   crosshair: {fileID: 1930962020}
   corPadrao: {r: 1, g: 1, b: 1, a: 1}
   corInimigo: {r: 1, g: 0, b: 0, a: 1}

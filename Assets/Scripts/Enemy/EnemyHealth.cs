@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI; // Adicionado para controlar a interface (UI)
+using UnityEngine.UI;
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -8,47 +8,43 @@ public class EnemyHealth : MonoBehaviour
     private float currentHealth;
 
     [Header("Interface")]
-    public Image barraDeVida; // Onde você vai arrastar a imagem "Filled"
-    public Transform canvasDaVida; // Onde você vai arrastar o objeto principal do Canvas
+    public Image barraDeVida;
+    public Transform canvasDaVida;
+    private Camera mainCamera; // Otimização: guarda a referência da câmera
 
     [Header("Configurações de Drop")]
-    public GameObject rumPrefab; // Arraste o prefab do Rum aqui
-    public GameObject municaoPrefab; // Arraste o prefab da Caixa de Munição aqui
+    public GameObject rumPrefab;
+    public GameObject municaoPrefab;
     [Range(0f, 100f)]
-    public float chanceDeDrop = 40f; // Chance geral de dropar algo (40%)
+    public float chanceDeDrop = 40f;
 
     void Start()
     {
-        currentHealth = maxHealth; // Nasce com a vida cheia
-       
-        // Garante que a barra comece cheia visualmente
-        if (barraDeVida != null)
-        {
-            barraDeVida.fillAmount = 1f;
-        }
+        currentHealth = maxHealth;
+        mainCamera = Camera.main; // Acha a câmera uma vez só no início
+
+        AtualizarBarraDeVida();
     }
 
-    void Update()
+    void LateUpdate()
     {
-        // Faz o Canvas sempre olhar para a câmera do jogador (essencial para FPS)
-        if (canvasDaVida != null)
+        // LateUpdate é mais suave para UIs que seguem a câmera
+        if (canvasDaVida != null && mainCamera != null)
         {
-            canvasDaVida.LookAt(canvasDaVida.position + Camera.main.transform.rotation * Vector3.forward,
-                                Camera.main.transform.rotation * Vector3.up);
+            canvasDaVida.LookAt(canvasDaVida.position + mainCamera.transform.forward);
         }
     }
 
-    // A arma chama essa função quando o Raycast bate nele
     public void TakeDamage(float amount)
     {
-        currentHealth -= amount;
-        Debug.Log(gameObject.name + " tomou tiro! Vida: " + currentHealth);
+        // Se o monstro já foi de arrasta pra cima, ignora o dano extra
+        if (currentHealth <= 0) return;
 
-        // A Mágica acontece aqui: a barra diminui proporcionalmente
-        if (barraDeVida != null)
-        {
-            barraDeVida.fillAmount = currentHealth / maxHealth;
-        }
+        // Tira a vida, mas impede que o valor fique menor que 0 ou maior que o máximo
+        currentHealth = Mathf.Clamp(currentHealth - amount, 0, maxHealth);
+        Debug.Log($"{gameObject.name} tomou um golpe! Vida: {currentHealth}");
+
+        AtualizarBarraDeVida();
 
         if (currentHealth <= 0f)
         {
@@ -56,28 +52,37 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
+    private void AtualizarBarraDeVida()
+    {
+        if (barraDeVida != null)
+        {
+            barraDeVida.fillAmount = currentHealth / maxHealth;
+        }
+    }
+
     void Die()
     {
-        // Sistema de sorteio para os drops
+        GerarDrop();
+       
+        Debug.Log($"{gameObject.name} foi pro fundo do mar!");
+        Destroy(gameObject); // Destrói o inimigo
+    }
+
+    private void GerarDrop()
+    {
         float sorteio = Random.Range(0f, 100f);
        
         if (sorteio <= chanceDeDrop)
         {
-            // 50% de chance de ser Rum, 50% de ser Munição
-            if (Random.value > 0.5f && rumPrefab != null)
+            // Sorteia 50/50 e escolhe o prefab correspondente em uma linha só
+            GameObject itemSorteado = (Random.value > 0.5f) ? rumPrefab : municaoPrefab;
+
+            // Se o prefab não estiver vazio lá no Inspector, ele cria o item
+            if (itemSorteado != null)
             {
-                Instantiate(rumPrefab, transform.position + Vector3.up, Quaternion.identity);
-                Debug.Log(gameObject.name + " dropou um Rum!");
-            }
-            else if (municaoPrefab != null)
-            {
-                Instantiate(municaoPrefab, transform.position + Vector3.up, Quaternion.identity);
-                Debug.Log(gameObject.name + " dropou Munição!");
+                Instantiate(itemSorteado, transform.position + Vector3.up, Quaternion.identity);
+                Debug.Log($"Saque à vista! Dropou {itemSorteado.name}");
             }
         }
-
-        Debug.Log(gameObject.name + " foi destruído!");
-        // Destrói o inimigo da cena
-        Destroy(gameObject);
     }
 }

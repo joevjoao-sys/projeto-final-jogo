@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // Importante para usar o texto de alta definição
+using TMPro;
+using System.Collections; // Necessário para usar Coroutines (IEnumerator)
 
 public class ArmaCapitao : MonoBehaviour
 {
@@ -12,13 +13,17 @@ public class ArmaCapitao : MonoBehaviour
     [Header("Munição")]
     public int capacidadeDoPente = 6;
     private int municaoNoPente;
-    public int balasNaReserva = 24; // Balas totais que o jogador carrega
+    public int balasNaReserva = 24; 
+
+    [Header("Tempo de Recarga")]
+    public float tempoDeRecarga = 2.0f; // Tempo em segundos que demora para recarregar
+    private bool estaRecarregando = false; // Bloqueia ações durante a recarga
 
     [Header("Interface (UI)")]
     public Image crosshair;
     public Color corPadrao = Color.white;
     public Color corInimigo = Color.red;
-    public TextMeshProUGUI textoMunicao; // Arraste o texto da UI aqui
+    public TextMeshProUGUI textoMunicao; 
 
     [Header("Configuração de Física")]
     public LayerMask layerInimigo;
@@ -30,13 +35,16 @@ public class ArmaCapitao : MonoBehaviour
     {
         cameraPrincipal = Camera.main;
         municaoNoPente = capacidadeDoPente;
-       
+        
         if (crosshair != null) crosshair.color = corPadrao;
         AtualizarUI();
     }
 
     void Update()
     {
+        // Se estiver recarregando, o jogador não pode atirar nem tentar recarregar de novo
+        if (estaRecarregando) return;
+
         VerificarMira();
 
         // Atira com o botão esquerdo
@@ -46,10 +54,10 @@ public class ArmaCapitao : MonoBehaviour
             Atirar();
         }
 
-        // Recarrega manualmente com a tecla R se o pente não estiver cheio
+        // Recarrega manualmente com a tecla R
         if (Input.GetKeyDown(KeyCode.R) && municaoNoPente < capacidadeDoPente)
         {
-            RecarregarPente();
+            StartCoroutine(RecarregarPente());
         }
     }
 
@@ -69,7 +77,14 @@ public class ArmaCapitao : MonoBehaviour
     {
         if (municaoNoPente <= 0)
         {
-            Debug.Log("Pente vazio! Aperte R para recarregar.");
+            if (balasNaReserva > 0)
+            {
+                StartCoroutine(RecarregarPente());
+            }
+            else
+            {
+                Debug.Log("Sem munição nenhuma!");
+            }
             return;
         }
 
@@ -84,34 +99,42 @@ public class ArmaCapitao : MonoBehaviour
             EnemyHealth vidaDoInimigo = hit.transform.GetComponent<EnemyHealth>();
             if (vidaDoInimigo != null) vidaDoInimigo.TakeDamage(dano);
         }
+
+        // RECARGA AUTOMÁTICA: Começa a recarga se o pente esvaziou
+        if (municaoNoPente <= 0 && balasNaReserva > 0)
+        {
+            StartCoroutine(RecarregarPente());
+        }
     }
 
-    void RecarregarPente()
+    IEnumerator RecarregarPente()
     {
-        if (balasNaReserva <= 0)
-        {
-            Debug.Log("Sem munição na reserva para recarregar!");
-            return;
-        }
+        if (balasNaReserva <= 0) yield break;
 
+        estaRecarregando = true;
+        Debug.Log("Recarregando...");
+
+        // ESPERA: O jogo espera os segundos definidos sem mexer no texto da UI
+        yield return new WaitForSeconds(tempoDeRecarga);
+
+        // Lógica de abastecer o pente
         int balasNecessarias = capacidadeDoPente - municaoNoPente;
         int balasParaColocar = Mathf.Min(balasNecessarias, balasNaReserva);
 
         municaoNoPente += balasParaColocar;
         balasNaReserva -= balasParaColocar;
 
+        estaRecarregando = false; // Libera a arma para atirar novamente
         Debug.Log("Arma recarregada!");
         AtualizarUI();
     }
 
-    // Função que o item do chão vai chamar quando o player pegar munição
     public void ColetarMunicao(int quantidade)
     {
         balasNaReserva += quantidade;
         AtualizarUI();
     }
 
-    // Mantém a interface bonita e atualizada: Ex: 6 / 24
     void AtualizarUI()
     {
         if (textoMunicao != null)
