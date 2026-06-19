@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections; // Necessário para usar a Coroutine do Knockback
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class EnemyHealth : MonoBehaviour
     [Header("Interface")]
     public Image barraDeVida;
     public Transform canvasDaVida;
-    private Camera mainCamera; // Otimização: guarda a referência da câmera
+    private Camera mainCamera;
 
     [Header("Configurações de Drop")]
     public GameObject rumPrefab;
@@ -18,17 +19,19 @@ public class EnemyHealth : MonoBehaviour
     [Range(0f, 100f)]
     public float chanceDeDrop = 40f;
 
+    // Controle do Knockback
+    private bool sofrendoKnockback = false;
+
     void Start()
     {
         currentHealth = maxHealth;
-        mainCamera = Camera.main; // Acha a câmera uma vez só no início
+        mainCamera = Camera.main;
 
         AtualizarBarraDeVida();
     }
 
     void LateUpdate()
     {
-        // LateUpdate é mais suave para UIs que seguem a câmera
         if (canvasDaVida != null && mainCamera != null)
         {
             canvasDaVida.LookAt(canvasDaVida.position + mainCamera.transform.forward);
@@ -37,10 +40,8 @@ public class EnemyHealth : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
-        // Se o monstro já foi de arrasta pra cima, ignora o dano extra
         if (currentHealth <= 0) return;
 
-        // Tira a vida, mas impede que o valor fique menor que 0 ou maior que o máximo
         currentHealth = Mathf.Clamp(currentHealth - amount, 0, maxHealth);
         Debug.Log($"{gameObject.name} tomou um golpe! Vida: {currentHealth}");
 
@@ -65,7 +66,7 @@ public class EnemyHealth : MonoBehaviour
         GerarDrop();
        
         Debug.Log($"{gameObject.name} foi pro fundo do mar!");
-        Destroy(gameObject); // Destrói o inimigo
+        Destroy(gameObject);
     }
 
     private void GerarDrop()
@@ -74,15 +75,58 @@ public class EnemyHealth : MonoBehaviour
        
         if (sorteio <= chanceDeDrop)
         {
-            // Sorteia 50/50 e escolhe o prefab correspondente em uma linha só
             GameObject itemSorteado = (Random.value > 0.5f) ? rumPrefab : municaoPrefab;
 
-            // Se o prefab não estiver vazio lá no Inspector, ele cria o item
             if (itemSorteado != null)
             {
                 Instantiate(itemSorteado, transform.position + Vector3.up, Quaternion.identity);
                 Debug.Log($"Saque à vista! Dropou {itemSorteado.name}");
             }
         }
+    }
+
+    // --- FUNÇÕES DE KNOCKBACK ADICIONADAS AQUI ---
+
+    public void TomarKnockback(Vector3 origemDoAtaque, float forcaKnockback, float duracao)
+    {
+        if (!sofrendoKnockback)
+        {
+            StartCoroutine(RotinaDeKnockback(origemDoAtaque, forcaKnockback, duracao));
+        }
+    }
+
+    private IEnumerator RotinaDeKnockback(Vector3 origemDoAtaque, float forca, float duracao)
+    {
+        sofrendoKnockback = true;
+
+        float tempoDecorrido = 0f;
+        Vector3 posInicial = transform.position;
+
+        // Calcula a direção para trás (ignorando o eixo Y)
+        Vector3 direcao = (transform.position - origemDoAtaque).normalized;
+        direcao.y = 0;
+       
+        Vector3 posFinal = transform.position + (direcao * forca);
+
+        // Checa se tem uma parede atrás para não atravessar o mapa
+        if (Physics.Raycast(transform.position, direcao, out RaycastHit hit, forca))
+        {
+            posFinal = hit.point - (direcao * 0.5f);
+        }
+
+        while (tempoDecorrido < duracao)
+        {
+            tempoDecorrido += Time.deltaTime;
+           
+            // Ease-Out: Rápido no início, freia no final
+            float t = tempoDecorrido / duracao;
+            float transicaoSuave = t * (2f - t);
+
+            transform.position = Vector3.Lerp(posInicial, posFinal, transicaoSuave);
+
+            yield return null;
+        }
+
+        sofrendoKnockback = false;
     }
 }

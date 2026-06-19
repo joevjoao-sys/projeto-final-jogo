@@ -758,7 +758,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &571968397
 RectTransform:
   m_ObjectHideFlags: 0
@@ -994,7 +994,8 @@ MonoBehaviour:
   layerInimigo:
     serializedVersion: 2
     m_Bits: 8
-  forcaKnockback: 15
+  forcaKnockback: 7
+  duracaoKnockback: 0.3
   animator: {fileID: 0}
   tempoEntreAtaques: 0.5
 --- !u!114 &618083937
@@ -3105,10 +3106,10 @@ MonoBehaviour:
   tempoEntreTiros: 0.5
   capacidadeDoPente: 6
   balasNaReserva: 24
-  tempoDeRecarga: 2
   crosshair: {fileID: 1930962020}
   corPadrao: {r: 1, g: 1, b: 1, a: 1}
   corInimigo: {r: 1, g: 0, b: 0, a: 1}
+  iconeInimigoNaMira: {fileID: 571968398}
   textoMunicao: {fileID: 1134406058}
   layerInimigo:
     serializedVersion: 2

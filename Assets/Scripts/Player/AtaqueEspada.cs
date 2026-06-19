@@ -9,7 +9,8 @@ public class AtaqueEspada : MonoBehaviour
     public LayerMask layerInimigo;
 
     [Header("Configurações de Knockback")]
-    public float forcaKnockback = 10f; // Força do empurrão. Ajuste no Inspector!
+    public float forcaKnockback = 4f; // Valores menores funcionam melhor no cinemático (ex: 3 a 5)
+    public float duracaoKnockback = 0.3f; // Tempo que dura o "tranco" (0.3s é ideal)
 
     [Header("Animação e Cooldown")]
     public Animator animator;
@@ -35,57 +36,22 @@ public class AtaqueEspada : MonoBehaviour
             animator.SetTrigger("Ataque");
         }
 
-        // --- CÓDIGO PARA JOGOS 3D ---
+        // Detecta inimigos na área da espadada
         Collider[] inimigosAtingidos = Physics.OverlapSphere(pontoDeAtaque.position, alcanceAtaque, layerInimigo);
 
         foreach (Collider inimigo in inimigosAtingidos)
         {
-            // 1. Aplica o Dano
             EnemyHealth vidaDoInimigo = inimigo.GetComponent<EnemyHealth>();
+           
             if (vidaDoInimigo != null)
             {
+                // 1. Aplica o Dano
                 vidaDoInimigo.TakeDamage(danoEspada);
-            }
 
-            // 2. Aplica o Knockback (Física 3D)
-            Rigidbody rbInimigo = inimigo.GetComponent<Rigidbody>();
-            if (rbInimigo != null)
-            {
-                // Calcula a direção do empurrão (Posição do Inimigo menos a Posição da Espada)
-                Vector3 direcao = (inimigo.transform.position - transform.position).normalized;
-               
-                // Mantém o empurrão apenas na horizontal (opcional, evita que o inimigo voe para o céu)
-                direcao.y = 0.2f;
-
-                // Aplica a força instantaneamente usando Impulse
-                rbInimigo.AddForce(direcao * forcaKnockback, ForceMode.VelocityChange);
+                // 2. Aplica o Knockback Cinemático! (Sem Rigidbody, sem bugs de gravidade)
+                vidaDoInimigo.TomarKnockback(transform.position, forcaKnockback, duracaoKnockback);
             }
         }
-
-        /* --- SE SEU JOGO FOR 2D, APAGUE O BLOCO 3D ACIMA E USE ESTE ABAIXO: ---
-       
-        Collider2D[] inimigosAtingidos = Physics2D.OverlapCircleAll(pontoDeAtaque.position, alcanceAtaque, layerInimigo);
-
-        foreach (Collider2D inimigo in inimigosAtingidos)
-        {
-            EnemyHealth vidaDoInimigo = inimigo.GetComponent<EnemyHealth>();
-            if (vidaDoInimigo != null)
-            {
-                vidaDoInimigo.TakeDamage(danoEspada);
-            }
-
-            Rigidbody2D rbInimigo = inimigo.GetComponent<Rigidbody2D>();
-            if (rbInimigo != null)
-            {
-                Vector2 direcao = (inimigo.transform.position - transform.position).normalized;
-               
-                // Zera a velocidade atual para o knockback não ser cancelado se ele estiver andando
-                rbInimigo.linearVelocity = Vector2.zero;
-               
-                rbInimigo.AddForce(direcao * forcaKnockback, ForceMode2D.Impulse);
-            }
-        }
-        ----------------------------------------------------------------------- */
     }
 
     void OnDrawGizmosSelected()
@@ -95,4 +61,3 @@ public class AtaqueEspada : MonoBehaviour
         Gizmos.DrawWireSphere(pontoDeAtaque.position, alcanceAtaque);
     }
 }
-

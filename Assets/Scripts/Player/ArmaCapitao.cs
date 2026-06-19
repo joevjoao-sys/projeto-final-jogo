@@ -1,7 +1,6 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UI; // Obrigatório para gerenciar a UI
 using TMPro;
-using System.Collections; // Necessário para usar Coroutines (IEnumerator)
 
 public class ArmaCapitao : MonoBehaviour
 {
@@ -13,17 +12,18 @@ public class ArmaCapitao : MonoBehaviour
     [Header("Munição")]
     public int capacidadeDoPente = 6;
     private int municaoNoPente;
-    public int balasNaReserva = 24; 
-
-    [Header("Tempo de Recarga")]
-    public float tempoDeRecarga = 2.0f; // Tempo em segundos que demora para recarregar
-    private bool estaRecarregando = false; // Bloqueia ações durante a recarga
+    public int balasNaReserva = 24;
 
     [Header("Interface (UI)")]
-    public Image crosshair;
+    public Image crosshair; // Sua mira padrão
     public Color corPadrao = Color.white;
     public Color corInimigo = Color.red;
-    public TextMeshProUGUI textoMunicao; 
+   
+    // --- NOVA VARIÁVEL AQUI ---
+    [Tooltip("Imagem extra que aparece quando mira no inimigo (ex: uma caveira, um x)")]
+    public Image iconeInimigoNaMira;
+   
+    public TextMeshProUGUI textoMunicao;
 
     [Header("Configuração de Física")]
     public LayerMask layerInimigo;
@@ -35,58 +35,61 @@ public class ArmaCapitao : MonoBehaviour
     {
         cameraPrincipal = Camera.main;
         municaoNoPente = capacidadeDoPente;
-        
+       
+        // Garante que o ícone extra comece escondido
+        if (iconeInimigoNaMira != null)
+        {
+            iconeInimigoNaMira.enabled = false;
+        }
+
         if (crosshair != null) crosshair.color = corPadrao;
         AtualizarUI();
     }
 
     void Update()
     {
-        // Se estiver recarregando, o jogador não pode atirar nem tentar recarregar de novo
-        if (estaRecarregando) return;
-
         VerificarMira();
 
-        // Atira com o botão esquerdo
         if (Input.GetButtonDown("Fire1") && Time.time >= proximoTempoDeTiro)
         {
             proximoTempoDeTiro = Time.time + tempoEntreTiros;
             Atirar();
         }
 
-        // Recarrega manualmente com a tecla R
         if (Input.GetKeyDown(KeyCode.R) && municaoNoPente < capacidadeDoPente)
         {
-            StartCoroutine(RecarregarPente());
+            RecarregarPente();
         }
     }
 
+    // --- LÓGICA ATUALIZADA AQUI ---
     void VerificarMira()
     {
-        if (crosshair == null) return;
         RaycastHit hit;
         Ray raio = cameraPrincipal.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
 
+        // Se o raio atingiu o layer Enemy
         if (Physics.Raycast(raio, out hit, alcance, layerInimigo))
-            crosshair.color = corInimigo;
+        {
+            // 1. Muda a cor da mira principal
+            if (crosshair != null) crosshair.color = corInimigo;
+
+            // 2. MOSTRA o ícone extra
+            if (iconeInimigoNaMira != null) iconeInimigoNaMira.enabled = true;
+        }
         else
-            crosshair.color = corPadrao;
+        {
+            // 1. Volta a cor padrão da mira
+            if (crosshair != null) crosshair.color = corPadrao;
+
+            // 2. ESCONDE o ícone extra
+            if (iconeInimigoNaMira != null) iconeInimigoNaMira.enabled = false;
+        }
     }
 
     void Atirar()
     {
-        if (municaoNoPente <= 0)
-        {
-            if (balasNaReserva > 0)
-            {
-                StartCoroutine(RecarregarPente());
-            }
-            else
-            {
-                Debug.Log("Sem munição nenhuma!");
-            }
-            return;
-        }
+        if (municaoNoPente <= 0) return;
 
         municaoNoPente--;
         AtualizarUI();
@@ -99,33 +102,15 @@ public class ArmaCapitao : MonoBehaviour
             EnemyHealth vidaDoInimigo = hit.transform.GetComponent<EnemyHealth>();
             if (vidaDoInimigo != null) vidaDoInimigo.TakeDamage(dano);
         }
-
-        // RECARGA AUTOMÁTICA: Começa a recarga se o pente esvaziou
-        if (municaoNoPente <= 0 && balasNaReserva > 0)
-        {
-            StartCoroutine(RecarregarPente());
-        }
     }
 
-    IEnumerator RecarregarPente()
+    void RecarregarPente()
     {
-        if (balasNaReserva <= 0) yield break;
-
-        estaRecarregando = true;
-        Debug.Log("Recarregando...");
-
-        // ESPERA: O jogo espera os segundos definidos sem mexer no texto da UI
-        yield return new WaitForSeconds(tempoDeRecarga);
-
-        // Lógica de abastecer o pente
+        if (balasNaReserva <= 0) return;
         int balasNecessarias = capacidadeDoPente - municaoNoPente;
         int balasParaColocar = Mathf.Min(balasNecessarias, balasNaReserva);
-
         municaoNoPente += balasParaColocar;
         balasNaReserva -= balasParaColocar;
-
-        estaRecarregando = false; // Libera a arma para atirar novamente
-        Debug.Log("Arma recarregada!");
         AtualizarUI();
     }
 
@@ -137,9 +122,6 @@ public class ArmaCapitao : MonoBehaviour
 
     void AtualizarUI()
     {
-        if (textoMunicao != null)
-        {
-            textoMunicao.text = municaoNoPente + " / " + balasNaReserva;
-        }
+        if (textoMunicao != null) textoMunicao.text = municaoNoPente + " / " + balasNaReserva;
     }
 }
