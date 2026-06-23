@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections; // Necessário para usar a Coroutine do Knockback
+using System.Collections;
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -65,6 +65,14 @@ public class EnemyHealth : MonoBehaviour
     {
         GerarDrop();
        
+        // --- CÓDIGO NOVO: Avisa o WaveManager que este monstro morreu ---
+        WaveManager gerenciadorDeHorda = FindObjectOfType<WaveManager>();
+        if (gerenciadorDeHorda != null)
+        {
+            gerenciadorDeHorda.MonstroMorreu();
+        }
+        // ----------------------------------------------------------------
+       
         Debug.Log($"{gameObject.name} foi pro fundo do mar!");
         Destroy(gameObject);
     }
@@ -85,8 +93,6 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    // --- FUNÇÕES DE KNOCKBACK ADICIONADAS AQUI ---
-
     public void TomarKnockback(Vector3 origemDoAtaque, float forcaKnockback, float duracao)
     {
         if (!sofrendoKnockback)
@@ -102,13 +108,11 @@ public class EnemyHealth : MonoBehaviour
         float tempoDecorrido = 0f;
         Vector3 posInicial = transform.position;
 
-        // Calcula a direção para trás (ignorando o eixo Y)
         Vector3 direcao = (transform.position - origemDoAtaque).normalized;
         direcao.y = 0;
        
         Vector3 posFinal = transform.position + (direcao * forca);
 
-        // Checa se tem uma parede atrás para não atravessar o mapa
         if (Physics.Raycast(transform.position, direcao, out RaycastHit hit, forca))
         {
             posFinal = hit.point - (direcao * 0.5f);
@@ -118,7 +122,6 @@ public class EnemyHealth : MonoBehaviour
         {
             tempoDecorrido += Time.deltaTime;
            
-            // Ease-Out: Rápido no início, freia no final
             float t = tempoDecorrido / duracao;
             float transicaoSuave = t * (2f - t);
 
