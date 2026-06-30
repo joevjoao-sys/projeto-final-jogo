@@ -71,6 +71,12 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         Debug.Log("O navio afundou... Game Over.");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+       
+        // Encontra o GameManager na cena e chama a tela de morte
+        GameManager gm = FindObjectOfType<GameManager>();
+        if (gm != null)
+        {
+            gm.MostrarMenuMorte();
+        }
     }
 }
