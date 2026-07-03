@@ -4,7 +4,8 @@ using System.Collections;
 public class WaveManager : MonoBehaviour
 {
     [Header("Prefabs")]
-    public GameObject enemyPrefab;
+    public GameObject enemyPrefab;      // Seu inimigo padrão (corpo a corpo)
+    public GameObject enemyRangedPrefab; // Arraste seu NOVO prefab de inimigo atirador aqui!
     public GameObject puddlePrefab;
    
     [Header("Listas de Pontos (Arraste aqui)")]
@@ -67,12 +68,25 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
-        // --- CÓDIGO NOVO: Conta o inimigo ANTES do delay para evitar falhas ---
         inimigosVivos++;
 
         yield return new WaitForSeconds(1f);
 
-        Instantiate(enemyPrefab, pontoEscolhido.position, pontoEscolhido.rotation);
+        // --- LÓGICA DE SORTEIO MODIFICADA AQUI ---
+        GameObject prefabParaCriar = enemyPrefab; // O padrão sempre será o corpo a corpo
+
+        // Só cogita colocar o atirador se a wave for MAIOR ou IGUAL a 3
+        if (waveAtual >= 3 && enemyRangedPrefab != null)
+        {
+            // 35% de chance de nascer o atirador, 65% de nascer o corpo a corpo normal
+            if (Random.value < 0.35f)
+            {
+                prefabParaCriar = enemyRangedPrefab;
+            }
+        }
+
+        // Cria o inimigo sorteado no ponto correto
+        Instantiate(prefabParaCriar, pontoEscolhido.position, pontoEscolhido.rotation);
     }
 
     public void MonstroMorreu()
