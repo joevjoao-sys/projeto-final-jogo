@@ -16,17 +16,17 @@ public class EnemyHealth : MonoBehaviour
     [Header("Configurações de Drop")]
     public GameObject rumPrefab;
     public GameObject municaoPrefab;
+    public GameObject pimentaPrefab; 
+    
     [Range(0f, 100f)]
     public float chanceDeDrop = 40f;
 
-    // Controle do Knockback
     private bool sofrendoKnockback = false;
 
     void Start()
     {
         currentHealth = maxHealth;
         mainCamera = Camera.main;
-
         AtualizarBarraDeVida();
     }
 
@@ -43,8 +43,6 @@ public class EnemyHealth : MonoBehaviour
         if (currentHealth <= 0) return;
 
         currentHealth = Mathf.Clamp(currentHealth - amount, 0, maxHealth);
-        Debug.Log($"{gameObject.name} tomou um golpe! Vida: {currentHealth}");
-
         AtualizarBarraDeVida();
 
         if (currentHealth <= 0f)
@@ -64,31 +62,41 @@ public class EnemyHealth : MonoBehaviour
     void Die()
     {
         GerarDrop();
-       
-        // --- CÓDIGO NOVO: Avisa o WaveManager que este monstro morreu ---
+        
         WaveManager gerenciadorDeHorda = FindObjectOfType<WaveManager>();
         if (gerenciadorDeHorda != null)
         {
             gerenciadorDeHorda.MonstroMorreu();
         }
-        // ----------------------------------------------------------------
-       
-        Debug.Log($"{gameObject.name} foi pro fundo do mar!");
+        
         Destroy(gameObject);
     }
 
     private void GerarDrop()
     {
         float sorteio = Random.Range(0f, 100f);
-       
+        
         if (sorteio <= chanceDeDrop)
         {
-            GameObject itemSorteado = (Random.value > 0.5f) ? rumPrefab : municaoPrefab;
+            GameObject itemSorteado = null;
+            float qualItem = Random.Range(0f, 100f);
+
+            if (qualItem <= 20f) 
+            {
+                itemSorteado = pimentaPrefab;
+            }
+            else if (qualItem <= 60f) 
+            {
+                itemSorteado = rumPrefab;
+            }
+            else 
+            {
+                itemSorteado = municaoPrefab;
+            }
 
             if (itemSorteado != null)
             {
                 Instantiate(itemSorteado, transform.position + Vector3.up, Quaternion.identity);
-                Debug.Log($"Saque à vista! Dropou {itemSorteado.name}");
             }
         }
     }
@@ -110,7 +118,7 @@ public class EnemyHealth : MonoBehaviour
 
         Vector3 direcao = (transform.position - origemDoAtaque).normalized;
         direcao.y = 0;
-       
+        
         Vector3 posFinal = transform.position + (direcao * forca);
 
         if (Physics.Raycast(transform.position, direcao, out RaycastHit hit, forca))
@@ -121,12 +129,8 @@ public class EnemyHealth : MonoBehaviour
         while (tempoDecorrido < duracao)
         {
             tempoDecorrido += Time.deltaTime;
-           
             float t = tempoDecorrido / duracao;
-            float transicaoSuave = t * (2f - t);
-
-            transform.position = Vector3.Lerp(posInicial, posFinal, transicaoSuave);
-
+            transform.position = Vector3.Lerp(posInicial, posFinal, t * (2f - t));
             yield return null;
         }
 

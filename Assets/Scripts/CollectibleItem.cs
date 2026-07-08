@@ -2,19 +2,23 @@ using UnityEngine;
 
 public class CollectibleItem : MonoBehaviour
 {
-    public enum ItemType { Rum, Municao, Chave }
-   
+    public enum ItemType { Rum, Municao, Chave, Pimenta }
+    
     [Header("Configurações do Item")]
     public ItemType tipoDoItem;
     public string nomeDoItem;
     public Sprite iconeDoItem; // O PNG que aparecerá na sua Hotbar
-    public float valorDoItem = 25f; // Quanto cura ou quanta munição dá
+    
+    [Tooltip("Usado para cura (Rum) ou quantidade de balas (Munição)")]
+    public float valorDoItem = 25f; 
 
-    // Chamado pelo PlayerInventory quando você aperta "E"
+    [Header("Configurações do Buff (Apenas Pimenta)")]
+    public float multiplicadorDeDano = 2f; // Dobra o dano
+    public float tempoDeEfeito = 5f; // Dura 5 segundos
+
     public void Coletar()
     {
         Debug.Log(nomeDoItem + " coletado!");
-        // Desativa o item para ele "sumir" do mundo e ir para o inventário
         gameObject.SetActive(false);
     }
 }

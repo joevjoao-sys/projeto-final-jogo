@@ -4,7 +4,7 @@ public class EnemyProjectile : MonoBehaviour
 {
     [Header("Configurações da Bala")]
     public float velocidade = 15f;
-    public float dano = 15f;
+    public float dano = 35f;
     public float tempoDeVida = 5f;
 
     [Header("Efeito de Perseguição (Teleguiado)")]
