@@ -1,19 +1,41 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // Obrigatório para trocar de cenas
+using UnityEngine.SceneManagement;
 
 public class ManagerMenu : MonoBehaviour
 {
-    // Função chamada pelo botão "Iniciar"
-    public void IniciarJogo()
+    [Header("Telas do Menu")]
+    public GameObject painelPrincipal; // Onde ficam os botões de Iniciar, Controles e Sair
+    public GameObject painelControles; // A sua nova tabela
+
+    void Start()
     {
-        // Certifique-se de colocar exatamente o nome da sua cena onde o jogo acontece
-        SceneManager.LoadScene("SampleScene");
+        // Garante que o jogo comece na tela certa
+        if (painelPrincipal != null) painelPrincipal.SetActive(true);
+        if (painelControles != null) painelControles.SetActive(false);
     }
 
-    // Função chamada pelo botão "Sair"
+    public void IniciarJogo()
+    {
+        SceneManager.LoadScene("SampleScene"); 
+    }
+
+    // --- NOVAS FUNÇÕES PARA OS CONTROLES ---
+    public void AbrirControles()
+    {
+        painelPrincipal.SetActive(false);
+        painelControles.SetActive(true);
+    }
+
+    public void FecharControles()
+    {
+        painelControles.SetActive(false);
+        painelPrincipal.SetActive(true);
+    }
+    // ---------------------------------------
+
     public void SairDoJogo()
     {
         Debug.Log("Fechando Maré de Sangue...");
-        Application.Quit(); // Só funciona na build final exportada
+        Application.Quit();
     }
 }

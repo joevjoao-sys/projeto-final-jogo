@@ -3,49 +3,86 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("Telas da UI")]
-    public GameObject painelPause;
-    public GameObject painelMorte;
-    public GameObject painelCreditos; // NOVO: Painel de vitória
+    [Header("Telas do Menu Inicial / Pause")]
+    public GameObject painelMenuPrincipal; 
+    public GameObject painelControles;     
 
-    private bool jogoPausado = false;
+    [Header("Telas de Fim de Jogo")]
+    public GameObject painelMorte;
+    public GameObject painelCreditos; 
+
     private bool jogadorMorto = false;
-    private bool jogoFinalizado = false; // NOVO: Controle de vitória
+    private bool jogoFinalizado = false;
 
     void Start()
     {
-        Time.timeScale = 1f; 
-        if (painelPause != null) painelPause.SetActive(false);
+        // O jogo abre congelado no Menu Principal
+        Time.timeScale = 0f; 
+        
+        if (painelMenuPrincipal != null) painelMenuPrincipal.SetActive(true);
+        
+        if (painelControles != null) painelControles.SetActive(false);
         if (painelMorte != null) painelMorte.SetActive(false);
         if (painelCreditos != null) painelCreditos.SetActive(false);
 
-        TravarMouse();
+        LiberarMouse();
     }
 
     void Update()
     {
-        // Só permite pausar se não estiver morto nem na tela de créditos
+        // O botão ESC agora abre ou fecha o Menu Principal direto
         if (Input.GetKeyDown(KeyCode.Escape) && !jogadorMorto && !jogoFinalizado)
         {
-            if (jogoPausado) RetomarJogo();
-            else PausarJogo();
+            if (painelMenuPrincipal.activeSelf)
+            {
+                IniciarOuContinuarJogo();
+            }
+            else
+            {
+                IrParaMenuPrincipal();
+            }
         }
     }
 
-    public void PausarJogo()
+    public void IniciarOuContinuarJogo()
     {
-        jogoPausado = true;
-        painelPause.SetActive(true);
-        Time.timeScale = 0f; 
+        if (jogadorMorto || jogoFinalizado)
+        {
+            ReiniciarFase();
+            return;
+        }
+        
+        painelMenuPrincipal.SetActive(false);
+        painelControles.SetActive(false);
+        
+        Time.timeScale = 1f; 
+        TravarMouse();
+    }
+
+    public void IrParaMenuPrincipal()
+    {
+        painelMenuPrincipal.SetActive(true);
+        painelControles.SetActive(false);
+        
+        Time.timeScale = 0f;
         LiberarMouse();
     }
 
-    public void RetomarJogo()
+    public void AbrirControles()
     {
-        jogoPausado = false;
-        painelPause.SetActive(false);
-        Time.timeScale = 1f; 
-        TravarMouse();
+        painelMenuPrincipal.SetActive(false);
+        painelControles.SetActive(true);
+    }
+
+    public void FecharControles()
+    {
+        painelControles.SetActive(false);
+        painelMenuPrincipal.SetActive(true);
+    }
+
+    public void SairDoJogo()
+    {
+        Application.Quit();
     }
 
     public void MostrarMenuMorte()
@@ -56,7 +93,6 @@ public class GameManager : MonoBehaviour
         LiberarMouse();
     }
 
-    // NOVO: Função para chamar a tela de vitória
     public void MostrarCreditos()
     {
         jogoFinalizado = true;
@@ -69,12 +105,6 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
-    public void VoltarAoMenuPrincipal()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("MenuPrincipal");
     }
 
     private void LiberarMouse()
