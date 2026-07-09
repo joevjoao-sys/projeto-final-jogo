@@ -142,7 +142,8 @@ MonoBehaviour:
   rumPrefab: {fileID: 5101566843536154508, guid: defa66582da745142895e2e640016b66, type: 3}
   municaoPrefab: {fileID: 8712268981736822848, guid: 2aac6238508a82445bfad3e9d6e8d1a2, type: 3}
   pimentaPrefab: {fileID: 8060960665267206355, guid: c569310fea90b4541943200bce0ed1b3, type: 3}
-  chanceDeDrop: 10
+  chanceDeDrop: 88.7
+  podeDroparPimenta: 1
 --- !u!114 &3917169807358222530
 MonoBehaviour:
   m_ObjectHideFlags: 0
