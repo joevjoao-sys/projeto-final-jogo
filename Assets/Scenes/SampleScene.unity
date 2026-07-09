@@ -654,15 +654,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7142637515923658082, guid: 4d8de6316d12ef54698481aa31098f7e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.9500122
+      value: 2.78
       objectReference: {fileID: 0}
     - target: {fileID: 7142637515923658082, guid: 4d8de6316d12ef54698481aa31098f7e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.3500004
+      value: -1.05
       objectReference: {fileID: 0}
     - target: {fileID: 7142637515923658082, guid: 4d8de6316d12ef54698481aa31098f7e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.08750059
+      value: 0.14
       objectReference: {fileID: 0}
     - target: {fileID: 7142637515923658082, guid: 4d8de6316d12ef54698481aa31098f7e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7781,8 +7781,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278311976
+  m_fontColor: {r: 0.157573, g: 0.86415094, b: 0.0048913495, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
