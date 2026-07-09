@@ -24,17 +24,19 @@ public class ArmaCapitao : MonoBehaviour
     public Color corInimigo = Color.red;
     public Image iconeInimigoNaMira;
     public TextMeshProUGUI textoMunicao;
-    
-    // --- NOVO: Ícone que avisa que o buff está rolando ---
     public Image iconeBuffNaTela; 
 
     [Header("Configuração de Física")]
     public LayerMask layerInimigo;
 
+    // --- NOVO: Variáveis da Bala Física ---
+    [Header("Configurações do Projétil")]
+    public GameObject prefabBala;   // Arraste o prefab da sua bala aqui
+    public Transform firePoint;     // Arraste o objeto da ponta da arma aqui
+    public float velocidadeBala = 50f;
+
     private float proximoTempoDeTiro;
     private Camera cameraPrincipal;
-    
-    // --- NOVO: Variável para saber se o Capitão tá furioso ---
     private bool buffAtivo = false; 
 
     void Start()
@@ -44,10 +46,7 @@ public class ArmaCapitao : MonoBehaviour
         danoOriginal = dano; 
         
         if (iconeInimigoNaMira != null) iconeInimigoNaMira.enabled = false;
-        
-        // Garante que o ícone do buff comece invisível
         if (iconeBuffNaTela != null) iconeBuffNaTela.enabled = false; 
-        
         if (crosshair != null) crosshair.color = corPadrao;
         
         AtualizarUI();
@@ -89,8 +88,6 @@ public class ArmaCapitao : MonoBehaviour
         }
         else
         {
-            // LÓGICA NOVA DA MIRA: 
-            // Se tiver com buff, fica Amarela. Se não, volta pro Branco padrão.
             if (crosshair != null) crosshair.color = buffAtivo ? Color.yellow : corPadrao;
             if (iconeInimigoNaMira != null) iconeInimigoNaMira.enabled = false;
         }
@@ -103,13 +100,18 @@ public class ArmaCapitao : MonoBehaviour
         municaoNoPente--;
         AtualizarUI();
 
-        RaycastHit hit;
-        Ray raio = cameraPrincipal.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-
-        if (Physics.Raycast(raio, out hit, alcance, layerInimigo))
+        // --- LÓGICA NOVA: Criando o Projétil ---
+        if (prefabBala != null && firePoint != null)
         {
-            EnemyHealth vidaDoInimigo = hit.transform.GetComponent<EnemyHealth>();
-            if (vidaDoInimigo != null) vidaDoInimigo.TakeDamage(dano);
+            // Cria a bala na ponta da arma
+            GameObject balaCriada = Instantiate(prefabBala, firePoint.position, firePoint.rotation);
+            
+            // Pega a física da bala e empurra ela para frente
+            Rigidbody rb = balaCriada.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.velocity = firePoint.forward * velocidadeBala;
+            }
         }
     }
 
@@ -141,21 +143,15 @@ public class ArmaCapitao : MonoBehaviour
 
     private IEnumerator RotinaBuffDeDano(float multiplicador, float duracao)
     {
-        // LIGA O MODO FURIOSO
         dano = danoOriginal * multiplicador;
         buffAtivo = true;
-        if (iconeBuffNaTela != null) iconeBuffNaTela.enabled = true; // Aparece a pimenta na tela
+        if (iconeBuffNaTela != null) iconeBuffNaTela.enabled = true; 
         
-        Debug.Log($"Modo Furioso! Dano subiu para: {dano}");
-
         yield return new WaitForSeconds(duracao);
 
-        // DESLIGA O MODO FURIOSO
         dano = danoOriginal;
         buffAtivo = false;
-        if (iconeBuffNaTela != null) iconeBuffNaTela.enabled = false; // Some a pimenta da tela
-        
-        Debug.Log("O efeito passou. Dano normalizado.");
+        if (iconeBuffNaTela != null) iconeBuffNaTela.enabled = false; 
     }
 
     void AtualizarUI()
