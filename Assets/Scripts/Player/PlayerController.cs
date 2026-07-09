@@ -7,7 +7,6 @@ public class PlayerController : MonoBehaviour
     public float speed = 15f; 
     public float gravity = -19.62f; 
     
-    // NOVA VARIÁVEL PARA O PULO
     public float jumpHeight = 3f; 
 
     [Header("Câmera e Visão")]
@@ -22,13 +21,14 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
-       
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        // Linhas de Cursor apagadas daqui. O GameManager controla isso agora.
     }
 
     void Update()
     {
+        // Trava o script se o jogo estiver no menu/pausado
+        if (Time.timeScale == 0f) return;
+
         // 1. VERIFICAÇÃO DE CHÃO E GRAVIDADE
         isGrounded = controller.isGrounded;
         if (isGrounded && velocity.y < 0)
@@ -37,11 +37,8 @@ public class PlayerController : MonoBehaviour
         }
 
         // --- LÓGICA DO PULO ---
-        // Verifica se apertou espaço (Jump) e se está no chão
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            // A fórmula da física para calcular a força exata para atingir a altura desejada:
-            // velocidade = raiz_quadrada(altura * -2 * gravidade)
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
 
@@ -63,7 +60,6 @@ public class PlayerController : MonoBehaviour
 
         controller.Move(move * speed * Time.deltaTime);
 
-        // Aplica a gravidade ao longo do tempo e move de novo (queda livre e pulo)
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }

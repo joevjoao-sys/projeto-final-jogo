@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using TMPro; // <-- BIBLIOTECA NOVA OBRIGATÓRIA PARA A FONTE
+using TMPro;
 
 public class WaveManager : MonoBehaviour
 {
@@ -17,65 +17,78 @@ public class WaveManager : MonoBehaviour
     public int waveAtual = 1;
     public int inimigosNestaWave = 3;
     
+    [Tooltip("Quantos segundos o Capitão tem para recolher o loot do chão antes da próxima onda")]
+    public float tempoDeDescanso = 6f; 
+    
     [Header("Interface")]
-    // --- NOVO: Variável para o seu texto na tela ---
     public TextMeshProUGUI textoAvisoWave; 
-
-    private int inimigosVivos = 0;
+    
     private bool hordaRolando = false;
 
     void Start()
     {
-        // Garante que o texto comece desligado quando o jogo abre
         if (textoAvisoWave != null) textoAvisoWave.gameObject.SetActive(false);
         
-        StartCoroutine(IniciarProximaWave());
+        // A Wave 1 começa rápido, com apenas 3 segundos de espera inicial
+        StartCoroutine(IniciarProximaWave(3f));
     }
 
     void Update()
     {
-        if (hordaRolando && inimigosVivos <= 0)
+        // Só começa a escanear a morte dos monstros DEPOIS que todos da onda atual já nasceram
+        if (hordaRolando)
         {
-            hordaRolando = false;
-            waveAtual++;
-            inimigosNestaWave += 2;
-            StartCoroutine(IniciarProximaWave());
+            // SISTEMA À PROVA DE BUGS: 
+            // O código escaneia o mapa e procura qualquer objeto que tenha vida de inimigo.
+            EnemyHealth[] todosOsInimigosNoMapa = FindObjectsOfType<EnemyHealth>();
+
+            // Se o escaneamento retornar ZERO, significa que a área está totalmente limpa
+            if (todosOsInimigosNoMapa.Length == 0)
+            {
+                hordaRolando = false;
+                waveAtual++;
+                inimigosNestaWave += 2; // Aumenta a dificuldade para a próxima
+                
+                // Dispara a próxima onda respeitando o tempo de descanso para você pegar os itens
+                StartCoroutine(IniciarProximaWave(tempoDeDescanso));
+            }
         }
     }
 
-    IEnumerator IniciarProximaWave()
+    IEnumerator IniciarProximaWave(float espera)
     {
-        Debug.Log("Prepare-se! A Onda " + waveAtual + " vai começar em 3 segundos!");
+        Debug.Log($"Área limpa! A onda {waveAtual} começa em {espera} segundos!");
         
-        // --- NOVO: Chama a animação do letreiro ---
+        // Pausa dramática para o jogador respirar e coletar os drops do chão
+        yield return new WaitForSeconds(espera);
+        
         if (textoAvisoWave != null)
         {
             StartCoroutine(AnimarTextoWave("WAVE " + waveAtual));
         }
 
-        yield return new WaitForSeconds(3f);
+        // Tempo para o letreiro aparecer e sumir antes de nascer bicho
+        yield return new WaitForSeconds(2f);
         
         for (int i = 0; i < inimigosNestaWave; i++)
         {
             StartCoroutine(SpawnarUmMonstro());
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(1.5f); // Intervalo entre o nascimento de cada bicho
         }
 
-        hordaRolando = true;
+        // Só libera o Update para verificar a morte deles depois que todos terminaram de nascer
+        hordaRolando = true; 
     }
 
-    // --- NOVA ROTINA: O EFEITO DO TEXTO ---
     IEnumerator AnimarTextoWave(string mensagem)
     {
         textoAvisoWave.text = mensagem;
         textoAvisoWave.gameObject.SetActive(true);
         
-        // Garante que a cor comece 100% visível
         Color cor = textoAvisoWave.color;
         cor.a = 1f;
         textoAvisoWave.color = cor;
 
-        // 1. Efeito POP (Cresce de 0.1 até 1.2 bem rápido)
         float tempo = 0;
         while (tempo < 0.3f)
         {
@@ -85,30 +98,20 @@ public class WaveManager : MonoBehaviour
             yield return null;
         }
         
-        // 2. Dá uma assentada no tamanho original
         textoAvisoWave.transform.localScale = Vector3.one;
-
-        // 3. Fica paradão por 1.5 segundos para o jogador ler
         yield return new WaitForSeconds(1.5f);
 
-        // 4. Efeito FADE OUT (Fica transparente enquanto diminui)
         tempo = 0;
         while (tempo < 1f)
         {
             tempo += Time.deltaTime;
-            
-            // Diminui o Alpha (transparência)
             cor.a = Mathf.Lerp(1f, 0f, tempo / 1f);
             textoAvisoWave.color = cor;
-            
-            // Diminui o tamanho
             float escala = Mathf.Lerp(1f, 0.5f, tempo / 1f);
             textoAvisoWave.transform.localScale = new Vector3(escala, escala, 1f);
-            
             yield return null;
         }
 
-        // Desliga o objeto pra não gastar processamento
         textoAvisoWave.gameObject.SetActive(false);
     }
 
@@ -131,14 +134,13 @@ public class WaveManager : MonoBehaviour
             yield break;
         }
 
-        inimigosVivos++;
         yield return new WaitForSeconds(1f);
 
         GameObject prefabParaCriar = enemyPrefab; 
 
         if (waveAtual >= 3 && enemyRangedPrefab != null)
         {
-            if (Random.value < 0.35f)
+            if (Random.value < 0.35f) // 35% de chance de ser o Atirador nas ondas mais altas
             {
                 prefabParaCriar = enemyRangedPrefab;
             }
@@ -147,9 +149,10 @@ public class WaveManager : MonoBehaviour
         Instantiate(prefabParaCriar, pontoEscolhido.position, pontoEscolhido.rotation);
     }
 
+    // Deixei essa função aqui em branco apenas para o seu inimigo não dar erro de script,
+    // já que agora o gerenciador rastreia o mapa todo de forma automática.
     public void MonstroMorreu()
     {
-        inimigosVivos--;
-        Debug.Log("Monstro morto. Restam: " + inimigosVivos);
+        
     }
 }
