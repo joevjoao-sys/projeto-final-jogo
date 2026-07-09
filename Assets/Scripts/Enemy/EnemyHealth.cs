@@ -21,6 +21,9 @@ public class EnemyHealth : MonoBehaviour
     [Range(0f, 100f)]
     public float chanceDeDrop = 40f;
 
+    [Tooltip("Marque essa caixa apenas no Prefab do Atirador!")]
+    public bool podeDroparPimenta = false; 
+
     private bool sofrendoKnockback = false;
 
     void Start()
@@ -72,31 +75,44 @@ public class EnemyHealth : MonoBehaviour
         Destroy(gameObject);
     }
 
+    // --- LÓGICA DE DROP ATUALIZADA (GARANTIA EXCLUSIVA) ---
     private void GerarDrop()
     {
         float sorteio = Random.Range(0f, 100f);
         
+        // Primeiro, vê se o inimigo vai dropar ALGUMA coisa (40% chance)
         if (sorteio <= chanceDeDrop)
         {
             GameObject itemSorteado = null;
-            float qualItem = Random.Range(0f, 100f);
-
-            if (qualItem <= 20f) 
+            
+            // SE ESSE FOR O ATIRADOR (podeDroparPimenta = true)
+            if (podeDroparPimenta)
             {
+                // GARANTIA: O item sorteado SERÁ a Pimenta.
+                // Ignoramos a roleta de itens comuns para garantir a exclusividade.
                 itemSorteado = pimentaPrefab;
             }
-            else if (qualItem <= 60f) 
-            {
-                itemSorteado = rumPrefab;
-            }
+            // SE FOR UM INIMIGO COMUM (podeDroparPimenta = false)
             else 
             {
-                itemSorteado = municaoPrefab;
+                // Mantém a roleta comum apenas para Rum e Munição
+                float qualItem = Random.Range(0f, 100f);
+                
+                if (qualItem <= 50f)
+                {
+                    itemSorteado = rumPrefab; // 50% Rum
+                }
+                else
+                {
+                    itemSorteado = municaoPrefab; // 50% Munição
+                }
             }
 
+            // Cria o item sorteado no mundo
             if (itemSorteado != null)
             {
                 Instantiate(itemSorteado, transform.position + Vector3.up, Quaternion.identity);
+                Debug.Log($"Saque à vista! Dropou {itemSorteado.name}");
             }
         }
     }

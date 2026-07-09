@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5101566843536154508
+--- !u!1 &7788610814228905992
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,11 +8,11 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7335809942209833688}
-  - component: {fileID: 3790839623216247789}
-  - component: {fileID: 7196199542704474898}
-  - component: {fileID: 679925089658771039}
-  - component: {fileID: 5907556723701201084}
+  - component: {fileID: 7448220313068837554}
+  - component: {fileID: 5832935010308330775}
+  - component: {fileID: 8581125533500105181}
+  - component: {fileID: 8504171960487223037}
+  - component: {fileID: 4228202830907724987}
   m_Layer: 0
   m_Name: Rum
   m_TagString: Coletavel
@@ -20,36 +20,36 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7335809942209833688
+--- !u!4 &7448220313068837554
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5101566843536154508}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -38.513477, y: -72.8523, z: 44.783436}
+  m_GameObject: {fileID: 7788610814228905992}
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &3790839623216247789
+--- !u!33 &5832935010308330775
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5101566843536154508}
-  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &7196199542704474898
+  m_GameObject: {fileID: 7788610814228905992}
+  m_Mesh: {fileID: 7611231506446137765, guid: 2377a2aa499a08745872eed5ac202743, type: 3}
+--- !u!23 &8581125533500105181
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5101566843536154508}
+  m_GameObject: {fileID: 7788610814228905992}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 8726636159561369742, guid: 2377a2aa499a08745872eed5ac202743, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -85,33 +85,34 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &679925089658771039
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5101566843536154508}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5907556723701201084
+--- !u!114 &8504171960487223037
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5101566843536154508}
+  m_GameObject: {fileID: 7788610814228905992}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db1d48f9e6af3884293554cddcbaf82f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   tipoDoItem: 0
-  nomeDoItem: Garrafa de Rum
+  nomeDoItem: Rum
   iconeDoItem: {fileID: 21300000, guid: 0e7cae3f0d673774a9615924b9f1cb0b, type: 3}
   valorDoItem: 25
+  multiplicadorDeDano: 2
+  tempoDeEfeito: 5
+--- !u!65 &4228202830907724987
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7788610814228905992}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.42443854, y: 0.98083496, z: 0.43377692}
+  m_Center: {x: 0.000076293945, y: 0.000061035156, z: -0.000061035156}
