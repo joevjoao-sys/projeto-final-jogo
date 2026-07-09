@@ -117,10 +117,15 @@ MonoBehaviour:
   maxHealth: 100
   barraDeVida: {fileID: 7711274286111347769}
   canvasDaVida: {fileID: 2974165968797461377}
-  rumPrefab: {fileID: 5101566843536154508, guid: defa66582da745142895e2e640016b66, type: 3}
-  municaoPrefab: {fileID: 8712268981736822848, guid: 2aac6238508a82445bfad3e9d6e8d1a2, type: 3}
+  rumPrefab: {fileID: 7788610814228905992, guid: defa66582da745142895e2e640016b66, type: 3}
+  municaoPrefab: {fileID: 3351363983050575085, guid: 2aac6238508a82445bfad3e9d6e8d1a2, type: 3}
   pimentaPrefab: {fileID: 8060960665267206355, guid: c569310fea90b4541943200bce0ed1b3, type: 3}
+<<<<<<< HEAD
   chanceDeDrop: 100
+=======
+  chanceDeDrop: 33.3
+>>>>>>> a581c66dee75de6d1c121b7ccb4d5f65f7bf7400
+  podeDroparPimenta: 0
 --- !u!195 &1684146207454244529
 NavMeshAgent:
   m_ObjectHideFlags: 0

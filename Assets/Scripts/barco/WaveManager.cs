@@ -1,92 +1,118 @@
 using UnityEngine;
 using System.Collections;
-using TMPro; // Obrigatório para manipular textos do TextMeshPro
+using TMPro;
 
 public class WaveManager : MonoBehaviour
 {
     [Header("Prefabs")]
-    public GameObject enemyPrefab;
-    public GameObject enemyRangedPrefab;
-    public GameObject puddlePrefab; 
+    public GameObject enemyPrefab;      
+    public GameObject enemyRangedPrefab; 
+    public GameObject puddlePrefab;
     
     [Header("Listas de Pontos (Arraste aqui)")]
     public Transform[] deckSpawnPoints;
     public Transform[] edgeSpawnPoints;
 
-    [Header("Interface (UI)")]
-    public TextMeshProUGUI textoAvisoWave; // Arraste o seu TextoAvisoWave aqui
-
     [Header("Controle da Horda")]
     public int waveAtual = 1;
-    public int waveMaxima = 10; // Fim de jogo após essa wave
     public int inimigosNestaWave = 3;
     
-    private int inimigosVivos = 0;
+    [Tooltip("Quantos segundos o Capitão tem para recolher o loot do chão antes da próxima onda")]
+    public float tempoDeDescanso = 6f; 
+    
+    [Header("Interface")]
+    public TextMeshProUGUI textoAvisoWave; 
+    
     private bool hordaRolando = false;
 
     void Start()
     {
-        // Garante que o texto comece apagado
         if (textoAvisoWave != null) textoAvisoWave.gameObject.SetActive(false);
         
-        StartCoroutine(IniciarProximaWave());
+        // A Wave 1 começa rápido, com apenas 3 segundos de espera inicial
+        StartCoroutine(IniciarProximaWave(3f));
     }
 
     void Update()
     {
-        if (hordaRolando && inimigosVivos <= 0)
+        // Só começa a escanear a morte dos monstros DEPOIS que todos da onda atual já nasceram
+        if (hordaRolando)
         {
-            hordaRolando = false;
-            
-            if (waveAtual >= waveMaxima)
+            // SISTEMA À PROVA DE BUGS: 
+            // O código escaneia o mapa e procura qualquer objeto que tenha vida de inimigo.
+            EnemyHealth[] todosOsInimigosNoMapa = FindObjectsOfType<EnemyHealth>();
+
+            // Se o escaneamento retornar ZERO, significa que a área está totalmente limpa
+            if (todosOsInimigosNoMapa.Length == 0)
             {
-                // Se terminou a Wave 10, avisa o GameManager para mostrar os créditos
-                GameManager gm = FindObjectOfType<GameManager>();
-                if (gm != null)
-                {
-                    gm.MostrarCreditos();
-                }
-            }
-            else
-            {
-                // Prepara a próxima wave
+                hordaRolando = false;
                 waveAtual++;
-                inimigosNestaWave += 2; 
-                StartCoroutine(IniciarProximaWave());
+                inimigosNestaWave += 2; // Aumenta a dificuldade para a próxima
+                
+                // Dispara a próxima onda respeitando o tempo de descanso para você pegar os itens
+                StartCoroutine(IniciarProximaWave(tempoDeDescanso));
             }
         }
     }
 
-    IEnumerator IniciarProximaWave()
+    IEnumerator IniciarProximaWave(float espera)
     {
+        Debug.Log($"Área limpa! A onda {waveAtual} começa em {espera} segundos!");
+        
+        // Pausa dramática para o jogador respirar e coletar os drops do chão
+        yield return new WaitForSeconds(espera);
+        
         if (textoAvisoWave != null)
         {
-            textoAvisoWave.gameObject.SetActive(true);
-            
-            // Loop da contagem regressiva de 3 a 1
-            for (int i = 3; i > 0; i--)
-            {
-                textoAvisoWave.text = "A ONDA " + waveAtual + " COMEÇA EM " + i + "...";
-                yield return new WaitForSeconds(1f);
-            }
-            
-            textoAvisoWave.text = "MATE TODOS!";
-            yield return new WaitForSeconds(1.5f);
-            textoAvisoWave.gameObject.SetActive(false); // Esconde o texto
+            StartCoroutine(AnimarTextoWave("WAVE " + waveAtual));
         }
-        else
-        {
-            // Fallback de 3 segundos se você não configurar o texto na Unity
-            yield return new WaitForSeconds(3f); 
-        }
+
+        // Tempo para o letreiro aparecer e sumir antes de nascer bicho
+        yield return new WaitForSeconds(2f);
         
         for (int i = 0; i < inimigosNestaWave; i++)
         {
             StartCoroutine(SpawnarUmMonstro());
-            yield return new WaitForSeconds(1.5f); 
+            yield return new WaitForSeconds(1.5f); // Intervalo entre o nascimento de cada bicho
         }
 
+        // Só libera o Update para verificar a morte deles depois que todos terminaram de nascer
         hordaRolando = true; 
+    }
+
+    IEnumerator AnimarTextoWave(string mensagem)
+    {
+        textoAvisoWave.text = mensagem;
+        textoAvisoWave.gameObject.SetActive(true);
+        
+        Color cor = textoAvisoWave.color;
+        cor.a = 1f;
+        textoAvisoWave.color = cor;
+
+        float tempo = 0;
+        while (tempo < 0.3f)
+        {
+            tempo += Time.deltaTime;
+            float escala = Mathf.Lerp(0.1f, 1.2f, tempo / 0.3f);
+            textoAvisoWave.transform.localScale = new Vector3(escala, escala, 1f);
+            yield return null;
+        }
+        
+        textoAvisoWave.transform.localScale = Vector3.one;
+        yield return new WaitForSeconds(1.5f);
+
+        tempo = 0;
+        while (tempo < 1f)
+        {
+            tempo += Time.deltaTime;
+            cor.a = Mathf.Lerp(1f, 0f, tempo / 1f);
+            textoAvisoWave.color = cor;
+            float escala = Mathf.Lerp(1f, 0.5f, tempo / 1f);
+            textoAvisoWave.transform.localScale = new Vector3(escala, escala, 1f);
+            yield return null;
+        }
+
+        textoAvisoWave.gameObject.SetActive(false);
     }
 
     IEnumerator SpawnarUmMonstro()
@@ -105,18 +131,16 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
-            yield break; 
+            yield break;
         }
-
-        inimigosVivos++; 
 
         yield return new WaitForSeconds(1f);
 
         GameObject prefabParaCriar = enemyPrefab; 
-        
+
         if (waveAtual >= 3 && enemyRangedPrefab != null)
         {
-            if (Random.value < 0.35f)
+            if (Random.value < 0.35f) // 35% de chance de ser o Atirador nas ondas mais altas
             {
                 prefabParaCriar = enemyRangedPrefab;
             }
@@ -125,8 +149,10 @@ public class WaveManager : MonoBehaviour
         Instantiate(prefabParaCriar, pontoEscolhido.position, pontoEscolhido.rotation);
     }
 
+    // Deixei essa função aqui em branco apenas para o seu inimigo não dar erro de script,
+    // já que agora o gerenciador rastreia o mapa todo de forma automática.
     public void MonstroMorreu()
     {
-        inimigosVivos--;
+        
     }
 }
