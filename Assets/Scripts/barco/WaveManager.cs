@@ -1,26 +1,34 @@
 using UnityEngine;
 using System.Collections;
+using TMPro; // Obrigatório para manipular textos do TextMeshPro
 
 public class WaveManager : MonoBehaviour
 {
     [Header("Prefabs")]
-    public GameObject enemyPrefab;      // Seu inimigo padrão (corpo a corpo)
-    public GameObject enemyRangedPrefab; // Arraste seu NOVO prefab de inimigo atirador aqui!
-    public GameObject puddlePrefab;
-   
+    public GameObject enemyPrefab;
+    public GameObject enemyRangedPrefab;
+    public GameObject puddlePrefab; 
+    
     [Header("Listas de Pontos (Arraste aqui)")]
     public Transform[] deckSpawnPoints;
     public Transform[] edgeSpawnPoints;
 
+    [Header("Interface (UI)")]
+    public TextMeshProUGUI textoAvisoWave; // Arraste o seu TextoAvisoWave aqui
+
     [Header("Controle da Horda")]
     public int waveAtual = 1;
+    public int waveMaxima = 10; // Fim de jogo após essa wave
     public int inimigosNestaWave = 3;
-   
+    
     private int inimigosVivos = 0;
     private bool hordaRolando = false;
 
     void Start()
     {
+        // Garante que o texto comece apagado
+        if (textoAvisoWave != null) textoAvisoWave.gameObject.SetActive(false);
+        
         StartCoroutine(IniciarProximaWave());
     }
 
@@ -29,24 +37,56 @@ public class WaveManager : MonoBehaviour
         if (hordaRolando && inimigosVivos <= 0)
         {
             hordaRolando = false;
-            waveAtual++;
-            inimigosNestaWave += 2;
-            StartCoroutine(IniciarProximaWave());
+            
+            if (waveAtual >= waveMaxima)
+            {
+                // Se terminou a Wave 10, avisa o GameManager para mostrar os créditos
+                GameManager gm = FindObjectOfType<GameManager>();
+                if (gm != null)
+                {
+                    gm.MostrarCreditos();
+                }
+            }
+            else
+            {
+                // Prepara a próxima wave
+                waveAtual++;
+                inimigosNestaWave += 2; 
+                StartCoroutine(IniciarProximaWave());
+            }
         }
     }
 
     IEnumerator IniciarProximaWave()
     {
-        Debug.Log("Prepare-se! A Onda " + waveAtual + " vai começar em 3 segundos!");
-        yield return new WaitForSeconds(3f);
-       
+        if (textoAvisoWave != null)
+        {
+            textoAvisoWave.gameObject.SetActive(true);
+            
+            // Loop da contagem regressiva de 3 a 1
+            for (int i = 3; i > 0; i--)
+            {
+                textoAvisoWave.text = "A ONDA " + waveAtual + " COMEÇA EM " + i + "...";
+                yield return new WaitForSeconds(1f);
+            }
+            
+            textoAvisoWave.text = "MATE TODOS!";
+            yield return new WaitForSeconds(1.5f);
+            textoAvisoWave.gameObject.SetActive(false); // Esconde o texto
+        }
+        else
+        {
+            // Fallback de 3 segundos se você não configurar o texto na Unity
+            yield return new WaitForSeconds(3f); 
+        }
+        
         for (int i = 0; i < inimigosNestaWave; i++)
         {
             StartCoroutine(SpawnarUmMonstro());
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(1.5f); 
         }
 
-        hordaRolando = true;
+        hordaRolando = true; 
     }
 
     IEnumerator SpawnarUmMonstro()
@@ -65,33 +105,28 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
-            yield break;
+            yield break; 
         }
 
-        inimigosVivos++;
+        inimigosVivos++; 
 
         yield return new WaitForSeconds(1f);
 
-        // --- LÓGICA DE SORTEIO MODIFICADA AQUI ---
-        GameObject prefabParaCriar = enemyPrefab; // O padrão sempre será o corpo a corpo
-
-        // Só cogita colocar o atirador se a wave for MAIOR ou IGUAL a 3
+        GameObject prefabParaCriar = enemyPrefab; 
+        
         if (waveAtual >= 3 && enemyRangedPrefab != null)
         {
-            // 35% de chance de nascer o atirador, 65% de nascer o corpo a corpo normal
             if (Random.value < 0.35f)
             {
                 prefabParaCriar = enemyRangedPrefab;
             }
         }
 
-        // Cria o inimigo sorteado no ponto correto
         Instantiate(prefabParaCriar, pontoEscolhido.position, pontoEscolhido.rotation);
     }
 
     public void MonstroMorreu()
     {
         inimigosVivos--;
-        Debug.Log("Monstro morto. Restam: " + inimigosVivos);
     }
 }

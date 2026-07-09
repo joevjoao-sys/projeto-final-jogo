@@ -6,22 +6,26 @@ public class GameManager : MonoBehaviour
     [Header("Telas da UI")]
     public GameObject painelPause;
     public GameObject painelMorte;
+    public GameObject painelCreditos; // NOVO: Painel de vitória
 
     private bool jogoPausado = false;
     private bool jogadorMorto = false;
+    private bool jogoFinalizado = false; // NOVO: Controle de vitória
 
     void Start()
     {
-        Time.timeScale = 1f;
+        Time.timeScale = 1f; 
         if (painelPause != null) painelPause.SetActive(false);
         if (painelMorte != null) painelMorte.SetActive(false);
+        if (painelCreditos != null) painelCreditos.SetActive(false);
 
         TravarMouse();
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && !jogadorMorto)
+        // Só permite pausar se não estiver morto nem na tela de créditos
+        if (Input.GetKeyDown(KeyCode.Escape) && !jogadorMorto && !jogoFinalizado)
         {
             if (jogoPausado) RetomarJogo();
             else PausarJogo();
@@ -32,7 +36,7 @@ public class GameManager : MonoBehaviour
     {
         jogoPausado = true;
         painelPause.SetActive(true);
-        Time.timeScale = 0f;
+        Time.timeScale = 0f; 
         LiberarMouse();
     }
 
@@ -40,7 +44,7 @@ public class GameManager : MonoBehaviour
     {
         jogoPausado = false;
         painelPause.SetActive(false);
-        Time.timeScale = 1f;
+        Time.timeScale = 1f; 
         TravarMouse();
     }
 
@@ -48,6 +52,15 @@ public class GameManager : MonoBehaviour
     {
         jogadorMorto = true;
         painelMorte.SetActive(true);
+        Time.timeScale = 0f;
+        LiberarMouse();
+    }
+
+    // NOVO: Função para chamar a tela de vitória
+    public void MostrarCreditos()
+    {
+        jogoFinalizado = true;
+        if (painelCreditos != null) painelCreditos.SetActive(true);
         Time.timeScale = 0f;
         LiberarMouse();
     }
