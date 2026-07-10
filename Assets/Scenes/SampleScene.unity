@@ -2098,7 +2098,7 @@ MonoBehaviour:
   speed: 15
   gravity: -19.62
   jumpHeight: 3
-  mouseSensitivity: 300
+  mouseSensitivity: 180
   playerCamera: {fileID: 963194228}
 --- !u!143 &618083930
 CharacterController:
