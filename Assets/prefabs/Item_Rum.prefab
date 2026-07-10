@@ -111,3 +111,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipoDoItem: 0
+  nomeDoItem: 
+  iconeDoItem: {fileID: 0}
+  valorDoItem: 25
+  multiplicadorDeDano: 2
+  tempoDeEfeito: 5
