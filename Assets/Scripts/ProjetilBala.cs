@@ -3,38 +3,44 @@ using UnityEngine;
 public class ProjetilBala : MonoBehaviour
 {
     private float danoDaBala = 25f; 
+    private bool jaColidiu = false; // Evita que a bala dê dano duplo no mesmo frame
 
-    // 1. Essa função recebe o dano vindo da arma
     public void ConfigurarBala(float danoConfigurado)
     {
         danoDaBala = danoConfigurado;
-    } // <-- ESSA CHAVE PRECISA FECHAR AQUI!
+    }
 
-    // 2. Essa função roda quando a bala bate em algo
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        // Ignora o jogador
-        if (other.CompareTag("Player")) return;
+        if (collision.gameObject.CompareTag("Player") || jaColidiu) return;
 
-        // AVISO 1: Mostra no Console em qual objeto a bala bateu
-        Debug.Log("A bala colidiu com: " + other.gameObject.name);
+        jaColidiu = true;
 
-        // Tenta pegar o componente de vida do inimigo
-        EnemyHealth vidaDoInimigo = other.GetComponent<EnemyHealth>();
+        // O SEGREDO: Desliga o colisor e a física da bala IMEDIATAMENTE no impacto
+        // Isso impede que ela empurre o inimigo ou quique para trás
+        if (GetComponent<Collider>() != null) GetComponent<Collider>().enabled = false;
+        
+        Rigidbody rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true; // Congela a física da bala na hora
+            rb.velocity = Vector3.zero;
+        }
 
+        // Procura o script de vida
+        EnemyHealth vidaDoInimigo = collision.gameObject.GetComponent<EnemyHealth>();
+        if (vidaDoInimigo == null)
+        {
+            vidaDoInimigo = collision.gameObject.GetComponentInParent<EnemyHealth>();
+        }
+
+        // Aplica o dano
         if (vidaDoInimigo != null)
         {
             vidaDoInimigo.TakeDamage(danoDaBala);
-            // AVISO 2: Confirma se o dano foi enviado
-            Debug.Log($"Dano de {danoDaBala} enviado com sucesso para {other.gameObject.name}!");
-        }
-        else
-        {
-            // AVISO 3: Alerta se a bala bateu no inimigo mas não achou o script de vida
-            Debug.LogWarning("Bateu, mas NÃO encontrou o script 'EnemyHealth' nesse objeto.");
         }
 
-        // Destrói a bala após o impacto
+        // Some com a bala do jogo
         Destroy(gameObject);
     }
 }

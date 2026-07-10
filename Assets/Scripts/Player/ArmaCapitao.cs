@@ -8,7 +8,7 @@ public class ArmaCapitao : MonoBehaviour
     [Header("Configurações de Combate")]
     public float dano = 25f;
     public float alcance = 50f;
-    public float tempoEntreTiros = 0.1f;
+    public float tempoEntreTiros = 0.02f;
     private float danoOriginal; 
 
     [Header("Munição")]
