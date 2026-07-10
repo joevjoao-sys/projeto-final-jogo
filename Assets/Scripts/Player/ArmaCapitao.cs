@@ -30,9 +30,9 @@ public class ArmaCapitao : MonoBehaviour
     public LayerMask layerInimigo;
 
     [Header("Configurações do Projétil")]
-    public GameObject prefabBala;   // Arraste o prefab da sua bala aqui
-    public Transform firePoint;     // Arraste o objeto da ponta da arma aqui
-    public float velocidadeBala = 50f;
+    public GameObject prefabBala;   
+    public Transform firePoint;     
+    public float velocidadeBala = 150f; 
 
     private float proximoTempoDeTiro;
     private Camera cameraPrincipal;
@@ -63,7 +63,7 @@ public class ArmaCapitao : MonoBehaviour
             return; 
         }
 
-        if (Input.GetButtonDown("Fire1") && Time.time >= proximoTempoDeTiro)
+        if (Input.GetButton("Fire1") && Time.time >= proximoTempoDeTiro)
         {
             proximoTempoDeTiro = Time.time + tempoEntreTiros;
             Atirar();
@@ -99,28 +99,35 @@ public class ArmaCapitao : MonoBehaviour
         municaoNoPente--;
         AtualizarUI();
 
-        // --- LÓGICA ATUALIZADA: Criando e Configurando o Projétil ---
         if (prefabBala != null && firePoint != null)
         {
-            // Cria a bala na ponta da arma respeitando a rotação do FirePoint
             GameObject balaCriada = Instantiate(prefabBala, firePoint.position, firePoint.rotation);
             
-            // CASO A BALA APENAS NO JOGO FIQUE EM PÉ:
-            // Você pode descomentar a linha abaixo para forçar uma rotação extra de 90 graus no eixo X ao nascer:
-            // balaCriada.transform.Rotate(90f, 0f, 0f);
+            Ray raioCentroDaTela = cameraPrincipal.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+            RaycastHit hit;
+            Vector3 pontoDeDestino;
 
-            // PASSO NOVO: Procura o script 'ProjetilBala' na bala criada e injeta o dano atual da arma
+            if (Physics.Raycast(raioCentroDaTela, out hit, alcance))
+            {
+                pontoDeDestino = hit.point;
+            }
+            else
+            {
+                pontoDeDestino = raioCentroDaTela.GetPoint(alcance);
+            }
+
+            Vector3 direcaoAlinhada = (pontoDeDestino - firePoint.position).normalized;
+
             ProjetilBala scriptBala = balaCriada.GetComponent<ProjetilBala>();
             if (scriptBala != null)
             {
                 scriptBala.ConfigurarBala(dano); 
             }
             
-            // Pega a física da bala e empurra ela para frente
             Rigidbody rb = balaCriada.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.velocity = firePoint.forward * velocidadeBala;
+                rb.velocity = direcaoAlinhada * velocidadeBala;
             }
         }
     }
