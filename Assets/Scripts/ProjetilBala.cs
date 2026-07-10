@@ -2,27 +2,39 @@ using UnityEngine;
 
 public class ProjetilBala : MonoBehaviour
 {
-    private float danoDaBala = 25f; // Valor padrão caso não receba da arma
+    private float danoDaBala = 25f; 
 
-    // Função para a arma passar o dano correto para a bala ao nascer
+    // 1. Essa função recebe o dano vindo da arma
     public void ConfigurarBala(float danoConfigurado)
     {
         danoDaBala = danoConfigurado;
-    }
+    } // <-- ESSA CHAVE PRECISA FECHAR AQUI!
 
-    // Essa função roda automaticamente quando a bala encosta em algo (com Is Trigger marcado)
+    // 2. Essa função roda quando a bala bate em algo
     private void OnTriggerEnter(Collider other)
     {
-        // Verifica se o objeto que a bala tocou tem o componente de vida do inimigo
+        // Ignora o jogador
+        if (other.CompareTag("Player")) return;
+
+        // AVISO 1: Mostra no Console em qual objeto a bala bateu
+        Debug.Log("A bala colidiu com: " + other.gameObject.name);
+
+        // Tenta pegar o componente de vida do inimigo
         EnemyHealth vidaDoInimigo = other.GetComponent<EnemyHealth>();
 
         if (vidaDoInimigo != null)
         {
-            // Dá o dano no inimigo!
             vidaDoInimigo.TakeDamage(danoDaBala);
+            // AVISO 2: Confirma se o dano foi enviado
+            Debug.Log($"Dano de {danoDaBala} enviado com sucesso para {other.gameObject.name}!");
+        }
+        else
+        {
+            // AVISO 3: Alerta se a bala bateu no inimigo mas não achou o script de vida
+            Debug.LogWarning("Bateu, mas NÃO encontrou o script 'EnemyHealth' nesse objeto.");
         }
 
-        // Destrói a bala na mesma hora para ela não atravessar ou ficar caída
+        // Destrói a bala após o impacto
         Destroy(gameObject);
     }
 }
