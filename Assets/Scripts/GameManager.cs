@@ -82,7 +82,15 @@ public class GameManager : MonoBehaviour
 
     public void SairDoJogo()
     {
-        Application.Quit();
+        Debug.Log("Saindo do jogo...");
+
+        #if UNITY_EDITOR
+            // Para o modo Play se estiver testando dentro da Unity 2021.3
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            // Fecha o jogo real quando ele estiver exportado
+            Application.Quit();
+        #endif
     }
 
     public void MostrarMenuMorte()

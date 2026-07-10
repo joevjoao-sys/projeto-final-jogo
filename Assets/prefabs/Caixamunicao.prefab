@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3855806655848197432}
   - component: {fileID: 1464719039203328385}
   - component: {fileID: 8605350391442689783}
+  - component: {fileID: 6763820547788657900}
   m_Layer: 0
   m_Name: Caixamunicao
   m_TagString: Coletavel
@@ -116,3 +117,18 @@ MonoBehaviour:
   valorDoItem: 25
   multiplicadorDeDano: 2
   tempoDeEfeito: 5
+--- !u!114 &6763820547788657900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3351363983050575085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9f551caad9a7c64c9a8ce66a349bb31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  velocidadeDeGiro: 100
+  alturaDoPulo: 0.3
+  velocidadeDaOnda: 3

@@ -2,15 +2,21 @@ using UnityEngine;
 
 public class MorteAgua : MonoBehaviour
 {
-    private EnemyHealth scriptVida; // Caso seu player use o mesmo sistema de vida, ou adapte para o seu script de vida do Player
+    // --- ATUALIZADO: Agora aponta para o script de vida correto do seu Player ---
+    private PlayerHealth scriptVidaPlayer; 
 
     void Start()
     {
-        // Se o seu player tiver um script de vida, pegamos a referência aqui
-        // scriptVida = GetComponent<EnemyHealth>();
+        // Busca o script de vida do jogador que está grudado neste mesmo objeto
+        scriptVidaPlayer = GetComponent<PlayerHealth>();
+        
+        // Caso o PlayerHealth esteja em outro lugar, um backup para encontrar ele:
+        if (scriptVidaPlayer == null)
+        {
+            scriptVidaPlayer = FindObjectOfType<PlayerHealth>();
+        }
     }
 
-    // Esta função é chamada automaticamente pela Unity quando o Player encosta em um Trigger
     private void OnTriggerEnter(Collider other)
     {
         // Verifica se o objeto em que o Player pisou tem a Tag "Agua"
@@ -20,32 +26,24 @@ public class MorteAgua : MonoBehaviour
         }
     }
 
-    /* SE O SEU JOGO FOR 2D, APAGUE A FUNÇÃO ACIMA E USE ESTA:
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Agua"))
-        {
-            Afogar();
-        }
-    }
-    */
-
     void Afogar()
     {
         Debug.Log("O pirata foi para o armário de Davy Jones! (Morreu afogado)");
-       
-        // Opção 1: Se você quiser zerar a vida dele usando o script de vida
-        if (scriptVida != null)
+        
+        // Se encontramos o script de vida do Capitão, damos um dano fatal nele
+        if (scriptVidaPlayer != null)
         {
-            scriptVida.TakeDamage(999999f); // Dano fatal
+            // Substitua 'TakeDamage' pelo nome exato da função de dano do seu PlayerHealth se for diferente
+            scriptVidaPlayer.TakeDamage(999999f); 
         }
         else
         {
-            // Opção 2: Reinicia a posição do jogador (Spawn) ou destrói o objeto
-            // Para testar rápido, vamos apenas destruir o jogador:
-            Destroy(gameObject);
-           
-            // DICA: Aqui você pode colocar para tocar um som de "Splash" ou abrir a tela de Game Over!
+            // Se o script de vida não for encontrado (por segurança), 
+            // apenas desativa o movimento do player em vez de deletar o objeto com a câmera
+            Debug.LogError("MorteAgua: O script PlayerHealth não foi encontrado no personagem!");
+            
+            // Como plano B para testes, teletransporta o player para cima para ele não sumir da tela
+            transform.position = new Vector3(transform.position.x, transform.position.y + 10f, transform.position.z);
         }
     }
 }
