@@ -29,7 +29,6 @@ public class ArmaCapitao : MonoBehaviour
     [Header("Configuração de Física")]
     public LayerMask layerInimigo;
 
-    // --- NOVO: Variáveis da Bala Física ---
     [Header("Configurações do Projétil")]
     public GameObject prefabBala;   // Arraste o prefab da sua bala aqui
     public Transform firePoint;     // Arraste o objeto da ponta da arma aqui
@@ -100,11 +99,22 @@ public class ArmaCapitao : MonoBehaviour
         municaoNoPente--;
         AtualizarUI();
 
-        // --- LÓGICA NOVA: Criando o Projétil ---
+        // --- LÓGICA ATUALIZADA: Criando e Configurando o Projétil ---
         if (prefabBala != null && firePoint != null)
         {
-            // Cria a bala na ponta da arma
+            // Cria a bala na ponta da arma respeitando a rotação do FirePoint
             GameObject balaCriada = Instantiate(prefabBala, firePoint.position, firePoint.rotation);
+            
+            // CASO A BALA APENAS NO JOGO FIQUE EM PÉ:
+            // Você pode descomentar a linha abaixo para forçar uma rotação extra de 90 graus no eixo X ao nascer:
+            // balaCriada.transform.Rotate(90f, 0f, 0f);
+
+            // PASSO NOVO: Procura o script 'ProjetilBala' na bala criada e injeta o dano atual da arma
+            ProjetilBala scriptBala = balaCriada.GetComponent<ProjetilBala>();
+            if (scriptBala != null)
+            {
+                scriptBala.ConfigurarBala(dano); 
+            }
             
             // Pega a física da bala e empurra ela para frente
             Rigidbody rb = balaCriada.GetComponent<Rigidbody>();
