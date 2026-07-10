@@ -8,14 +8,14 @@ public class ArmaCapitao : MonoBehaviour
     [Header("Configurações de Combate")]
     public float dano = 25f;
     public float alcance = 50f;
-    public float tempoEntreTiros = 0.1f;
+    public float tempoEntreTiros = 0;
     private float danoOriginal; 
 
     [Header("Munição")]
     public int capacidadeDoPente = 8;
     private int municaoNoPente;
     public int balasNaReserva = 24;
-    public float tempoDeRecarga = 1.5f; 
+    public float tempoDeRecarga = 1; 
     private bool isReloading = false; 
 
     [Header("Interface (UI)")]
