@@ -122,7 +122,7 @@ MonoBehaviour:
   municaoPrefab: {fileID: 3351363983050575085, guid: 2aac6238508a82445bfad3e9d6e8d1a2, type: 3}
   pimentaPrefab: {fileID: 6031009281297950847, guid: c569310fea90b4541943200bce0ed1b3, type: 3}
   chanceDeDrop: 40
-  podeDroparPimenta: 1
+  podeDroparPimenta: 0
 --- !u!195 &1684146207454244529
 NavMeshAgent:
   m_ObjectHideFlags: 0
